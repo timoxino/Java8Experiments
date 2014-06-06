@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -21,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class StreamExamples
 {
     private Collection<String> list;
+    private Collection<Double> bigList;
     private ArrayList<String> stringResults;
     private ArrayList<Integer> intResults;
 
@@ -30,6 +32,13 @@ public class StreamExamples
         list = Arrays.asList("Bb", "BBB", "AAAA", "Aaa");
         stringResults = new ArrayList<>();
         intResults = new ArrayList<>();
+
+        final int max = 10000000;
+        bigList = new ArrayList<>(max);
+        for (int i = max; i > 0; i--)
+        {
+            bigList.add(Math.random());
+        }
     }
 
     @Test
@@ -78,5 +87,23 @@ public class StreamExamples
         final Optional<String> reduced = list.stream().reduce((s1, s2) -> s1 + " then " + s2);
 
         reduced.ifPresent(System.out::println);
+    }
+
+    @Test
+    public void parallel()
+    {
+        long start2 = System.nanoTime();
+        long count2 = bigList.stream().parallel().sorted().count();
+        long finish2 = System.nanoTime();
+
+        System.out.println(count2);
+        System.out.println("Parallel: " + TimeUnit.NANOSECONDS.toMillis(finish2-start2) + "ms");
+
+        long start1 = System.nanoTime();
+        long count1 = bigList.stream().sorted().count();
+        long finish1 = System.nanoTime();
+
+        System.out.println(count1);
+        System.out.println("Sequential: " + TimeUnit.NANOSECONDS.toMillis(finish1-start1) + "ms");
     }
 }
