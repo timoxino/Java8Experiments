@@ -6,13 +6,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -87,5 +90,22 @@ public class FunctionalInterfaceExamples
         assertTrue(optionalString.isPresent());
         assertThat("Unexpected result", optionalString.get(), is("test"));
         assertThat("Unexpected result", optionalString.orElse("alernative"), is("test"));
+    }
+
+    @Test
+    public void flatMap()
+    {
+        class Order
+        {
+            class LineItem
+            {
+            }
+
+            List<LineItem> lineItemList = Arrays.asList(new LineItem(), new LineItem());
+        }
+
+        Stream<Order> orderStream = Stream.of(new Order[]{new Order(), new Order()});
+        long lineItemCount = orderStream.flatMap(order -> order.lineItemList.stream()).count();
+        assertThat("Unexpected result", lineItemCount, is(4L));
     }
 }
