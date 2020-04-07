@@ -1,5 +1,7 @@
 package by.experiments.java8.stream;
 
+import java.util.List;
+import java.util.Map.Entry;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,6 +11,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -105,5 +109,20 @@ public class StreamExamples
 
         System.out.println(count1);
         System.out.println("Sequential: " + TimeUnit.NANOSECONDS.toMillis(finish1-start1) + "ms");
+    }
+
+    @Test
+    public void findTopString() {
+        final List<String> strings = Arrays.asList("AAA", "BBB", "AAA", "CCC");
+        final Optional<String> topValue = strings.stream()
+            .collect(groupingBy(s -> {
+                return s;
+            }, counting()))
+            .entrySet()
+            .stream()
+            .max(Entry.comparingByValue())
+            .map(Entry::getKey);
+
+        assertTrue("Unexpected top value", "AAA".equals(topValue.orElse("ELSE")));
     }
 }
